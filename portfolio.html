@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portafolio — Proyectos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #1e1e1e;
+      --accent: #c8f542;
+      --accent2: #ff4d6d;
+      --accent3: #38bdf8;
+      --text: #f0ede8;
+      --muted: #5a5a5a;
+      --tag-bg: #1a1a1a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, background 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.2s, height 0.2s, opacity 0.2s;
+      opacity: 0.5;
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0.35;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 48px;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #ffffff08;
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,245,66,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,245,66,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 80%, black 40%, transparent 100%);
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(56px, 9vw, 120px);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      margin-bottom: 32px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text);
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 48px;
+      align-items: flex-end;
+    }
+    .hero-desc {
+      max-width: 380px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .hero-count {
+      margin-left: auto;
+      text-align: right;
+    }
+    .hero-count .num {
+      font-family: 'Syne', sans-serif;
+      font-size: 64px;
+      font-weight: 800;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--muted);
+      line-height: 1;
+    }
+    .hero-count small { color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* Filter tabs */
+    .filter-bar {
+      padding: 0 48px 56px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .filter-btn {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 2px;
+      cursor: none;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      color: #0a0a0a;
+      border-color: var(--accent);
+    }
+
+    /* Project grid */
+    .projects {
+      padding: 0 48px 120px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 2px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .project-card:hover {
+      border-color: var(--accent);
+      z-index: 2;
+    }
+    .project-card:hover .card-overlay { opacity: 1; }
+    .project-card:hover .card-image { transform: scale(1.04); }
+    .project-card:hover .card-arrow { transform: translate(4px, -4px); }
+
+    /* Span sizes */
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+
+    .card-image-wrap {
+      overflow: hidden;
+      position: relative;
+    }
+    .tall .card-image-wrap { height: 380px; }
+    .medium .card-image-wrap { height: 280px; }
+    .short .card-image-wrap { height: 200px; }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      display: block;
+    }
+
+    /* Placeholder images with gradients */
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.15);
+      text-transform: uppercase;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .g1 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+    .g2 { background: linear-gradient(135deg, #1a0a0a 0%, #2d1515 50%, #4a1530 100%); }
+    .g3 { background: linear-gradient(135deg, #0a1a0a 0%, #0d2b0d 50%, #0f4020 100%); }
+    .g4 { background: linear-gradient(135deg, #1a1a0a 0%, #2b2810 50%, #3d3610 100%); }
+    .g5 { background: linear-gradient(135deg, #0a0a1f 0%, #12102d 50%, #1e1a45 100%); }
+    .g6 { background: linear-gradient(135deg, #1f0a15 0%, #2d1020 50%, #451a30 100%); }
+    .g7 { background: linear-gradient(135deg, #0f1a0f 0%, #182b18 50%, #204020 100%); }
+
+    /* Decorative elements inside placeholders */
+    .deco {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .deco-circle {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: absolute;
+    }
+    .deco-circle:nth-child(2) { width: 200px; height: 200px; }
+    .deco-circle:nth-child(3) { width: 290px; height: 290px; }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      align-items: flex-end;
+      padding: 24px;
+    }
+
+    .card-body {
+      padding: 20px 24px 24px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .tag.web { border-color: var(--accent3); color: var(--accent3); }
+    .tag.mobile { border-color: var(--accent2); color: var(--accent2); }
+    .tag.featured { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-year { color: var(--muted); font-size: 11px; }
+    .card-arrow {
+      width: 32px; height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: transform 0.3s, border-color 0.3s, background 0.3s;
+      color: var(--muted);
+    }
+    .project-card:hover .card-arrow {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #0a0a0a;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      padding: 0 48px 80px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 32px 28px;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer p { color: var(--muted); font-size: 12px; }
+    .social-links { display: flex; gap: 24px; }
+    .social-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .social-links a:hover { color: var(--accent); }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .project-card:nth-child(1) { animation-delay: 0.05s; }
+    .project-card:nth-child(2) { animation-delay: 0.1s; }
+    .project-card:nth-child(3) { animation-delay: 0.15s; }
+    .project-card:nth-child(4) { animation-delay: 0.2s; }
+    .project-card:nth-child(5) { animation-delay: 0.25s; }
+    .project-card:nth-child(6) { animation-delay: 0.3s; }
+    .project-card:nth-child(7) { animation-delay: 0.35s; }
+
+    /* Hidden class for filtering */
+    .project-card.hidden {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 24px 60px; }
+      .hero h1 { font-size: 48px; }
+      .hero-count { display: none; }
+      .filter-bar { padding: 0 24px 40px; flex-wrap: wrap; }
+      .projects { padding: 0 24px 80px; grid-template-columns: 1fr; }
+      .span-8, .span-4, .span-6, .span-5, .span-7 { grid-column: span 1; }
+      .stats-bar { padding: 0 24px 60px; grid-template-columns: repeat(2, 1fr); }
+      footer { padding: 32px 24px; flex-direction: column; gap: 20px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <nav>
+    <a href="#" class="nav-logo">Alex<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="#">Inicio</a></li>
+      <li><a href="#">Proyectos</a></li>
+      <li><a href="#">Sobre mí</a></li>
+      <li><a href="#">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-eyebrow">Portafolio 2024</div>
+    <h1>Diseño &amp;<br><em>Código</em><br>que importa.</h1>
+    <div class="hero-meta">
+      <p class="hero-desc">Desarrollo de experiencias digitales para web y móvil. Cada proyecto es una solución a un problema real, construida con precisión.</p>
+      <div class="hero-count">
+        <div class="num">12</div>
+        <small>proyectos<br>completados</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">Todos</button>
+    <button class="filter-btn" data-filter="web">Web</button>
+    <button class="filter-btn" data-filter="mobile">Móvil</button>
+    <button class="filter-btn" data-filter="featured">Destacados</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num">34+</div><div class="stat-label">Clientes satisfechos</div></div>
+    <div class="stat"><div class="stat-num">12</div><div class="stat-label">Proyectos entregados</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Años de experiencia</div></div>
+    <div class="stat"><div class="stat-num">99%</div><div class="stat-label">Tasa de retención</div></div>
+  </div>
+
+  <!-- Projects -->
+  <section class="projects" id="projects">
+
+    <!-- 1: Featured Web large -->
+    <div class="project-card tall span-8" data-category="web featured">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g1">
+          <div class="deco">
+            <div class="deco-circle"></div>
+            <div class="deco-circle"></div>
+            <div class="deco-circle"></div>
+          </div>
+          <svg style="position:absolute;opacity:0.25" width="120" height="80" viewBox="0 0 120 80">
+            <rect x="10" y="8" width="100" height="64" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+            <rect x="10" y="8" width="100" height="16" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+            <circle cx="19" cy="16" r="3" fill="#ff4d6d"/>
+            <circle cx="30" cy="16" r="3" fill="#c8f542"/>
+            <circle cx="41" cy="16" r="3" fill="#38bdf8"/>
+            <rect x="18" y="34" width="60" height="4" rx="2" fill="#38bdf8" opacity="0.4"/>
+            <rect x="18" y="44" width="40" height="3" rx="1.5" fill="#38bdf8" opacity="0.25"/>
+            <rect x="18" y="54" width="50" height="3" rx="1.5" fill="#38bdf8" opacity="0.25"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag featured">Destacado</span>
+          <span class="tag web">Web</span>
+          <span class="tag">React</span>
+          <span class="tag">Node.js</span>
+        </div>
+        <div class="card-title">NovaPlatform — SaaS Dashboard</div>
+        <div class="card-desc">Panel de control empresarial con visualización de datos en tiempo real, gestión de equipos y analítica avanzada.</div>
+        <div class="card-footer">
+          <span class="card-year">2024</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2: Mobile small -->
+    <div class="project-card tall span-4" data-category="mobile featured">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g2">
+          <div class="deco">
+            <div class="deco-circle"></div>
+            <div class="deco-circle"></div>
+          </div>
+          <svg style="position:absolute;opacity:0.3" width="60" height="100" viewBox="0 0 60 100">
+            <rect x="2" y="2" width="56" height="96" rx="8" fill="none" stroke="#ff4d6d" stroke-width="1.5"/>
+            <rect x="18" y="2" width="24" height="4" rx="2" fill="#ff4d6d" opacity="0.5"/>
+            <rect x="10" y="18" width="40" height="5" rx="2.5" fill="#ff4d6d" opacity="0.35"/>
+            <rect x="10" y="28" width="28" height="4" rx="2" fill="#ff4d6d" opacity="0.2"/>
+            <rect x="6" y="42" width="22" height="22" rx="4" fill="none" stroke="#ff4d6d" stroke-width="1.2" opacity="0.5"/>
+            <rect x="32" y="42" width="22" height="22" rx="4" fill="none" stroke="#ff4d6d" stroke-width="1.2" opacity="0.5"/>
+            <rect x="6" y="70" width="48" height="10" rx="5" fill="#ff4d6d" opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag featured">Destacado</span>
+          <span class="tag mobile">Móvil</span>
+          <span class="tag">React Native</span>
+        </div>
+        <div class="card-title">Pulse — Fitness Tracker</div>
+        <div class="card-desc">App de seguimiento de salud con IA para recomendaciones personalizadas.</div>
+        <div class="card-footer">
+          <span class="card-year">2024</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3: Web medium -->
+    <div class="project-card medium span-4" data-category="web">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g3">
+          <svg style="position:absolute;opacity:0.3" width="90" height="70" viewBox="0 0 90 70">
+            <rect x="5" y="5" width="80" height="60" rx="4" fill="none" stroke="#c8f542" stroke-width="1.2"/>
+            <circle cx="45" cy="35" r="18" fill="none" stroke="#c8f542" stroke-width="1.2"/>
+            <line x1="45" y1="17" x2="45" y2="35" stroke="#c8f542" stroke-width="2" opacity="0.6"/>
+            <line x1="45" y1="35" x2="57" y2="40" stroke="#c8f542" stroke-width="1.5" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag web">Web</span>
+          <span class="tag">Vue.js</span>
+          <span class="tag">GraphQL</span>
+        </div>
+        <div class="card-title">Chrono — Gestión del tiempo</div>
+        <div class="card-desc">Herramienta de productividad con seguimiento de proyectos e informes.</div>
+        <div class="card-footer">
+          <span class="card-year">2023</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4: Mobile medium -->
+    <div class="project-card medium span-4" data-category="mobile">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g4">
+          <svg style="position:absolute;opacity:0.3" width="55" height="90" viewBox="0 0 55 90">
+            <rect x="2" y="2" width="51" height="86" rx="7" fill="none" stroke="#c8f542" stroke-width="1.2"/>
+            <rect x="15" y="2" width="25" height="3" rx="1.5" fill="#c8f542" opacity="0.5"/>
+            <rect x="8" y="16" width="39" height="24" rx="3" fill="none" stroke="#c8f542" stroke-width="1" opacity="0.4"/>
+            <rect x="8" y="46" width="18" height="10" rx="2" fill="#c8f542" opacity="0.3"/>
+            <rect x="29" y="46" width="18" height="10" rx="2" fill="#c8f542" opacity="0.3"/>
+            <rect x="8" y="62" width="39" height="6" rx="3" fill="#c8f542" opacity="0.2"/>
+            <rect x="8" y="74" width="25" height="6" rx="3" fill="#c8f542" opacity="0.15"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag mobile">Móvil</span>
+          <span class="tag">Flutter</span>
+          <span class="tag">Firebase</span>
+        </div>
+        <div class="card-title">Kasa — Finanzas personales</div>
+        <div class="card-desc">Control de gastos inteligente con metas de ahorro y análisis automático.</div>
+        <div class="card-footer">
+          <span class="card-year">2023</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5: Web medium -->
+    <div class="project-card medium span-4" data-category="web">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g5">
+          <svg style="position:absolute;opacity:0.28" width="90" height="65" viewBox="0 0 90 65">
+            <rect x="4" y="4" width="82" height="57" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.2"/>
+            <rect x="4" y="4" width="82" height="14" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.2"/>
+            <rect x="14" y="24" width="62" height="4" rx="2" fill="#38bdf8" opacity="0.3"/>
+            <rect x="14" y="34" width="45" height="3" rx="1.5" fill="#38bdf8" opacity="0.2"/>
+            <rect x="14" y="42" width="54" height="3" rx="1.5" fill="#38bdf8" opacity="0.2"/>
+            <rect x="14" y="50" width="30" height="3" rx="1.5" fill="#38bdf8" opacity="0.2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag web">Web</span>
+          <span class="tag">Next.js</span>
+          <span class="tag">Stripe</span>
+        </div>
+        <div class="card-title">Merq — E-commerce B2B</div>
+        <div class="card-desc">Plataforma de comercio entre empresas con catálogo dinámico y pagos integrados.</div>
+        <div class="card-footer">
+          <span class="card-year">2023</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6: Mobile large -->
+    <div class="project-card tall span-5" data-category="mobile featured">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g6">
+          <div class="deco">
+            <div class="deco-circle"></div>
+            <div class="deco-circle"></div>
+            <div class="deco-circle"></div>
+          </div>
+          <svg style="position:absolute;opacity:0.32" width="65" height="110" viewBox="0 0 65 110">
+            <rect x="2" y="2" width="61" height="106" rx="10" fill="none" stroke="#ff4d6d" stroke-width="1.5"/>
+            <rect x="20" y="2" width="25" height="4" rx="2" fill="#ff4d6d" opacity="0.5"/>
+            <circle cx="32" cy="30" r="14" fill="none" stroke="#ff4d6d" stroke-width="1.2" opacity="0.5"/>
+            <circle cx="32" cy="30" r="7" fill="#ff4d6d" opacity="0.25"/>
+            <rect x="10" y="54" width="45" height="6" rx="3" fill="#ff4d6d" opacity="0.3"/>
+            <rect x="10" y="66" width="30" height="4" rx="2" fill="#ff4d6d" opacity="0.2"/>
+            <rect x="8" y="80" width="20" height="20" rx="4" fill="none" stroke="#ff4d6d" stroke-width="1" opacity="0.4"/>
+            <rect x="32" y="80" width="25" height="10" rx="3" fill="#ff4d6d" opacity="0.25"/>
+            <rect x="32" y="94" width="18" height="6" rx="3" fill="#ff4d6d" opacity="0.15"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag featured">Destacado</span>
+          <span class="tag mobile">Móvil</span>
+          <span class="tag">Swift</span>
+          <span class="tag">Core ML</span>
+        </div>
+        <div class="card-title">Lens — Reconocimiento visual</div>
+        <div class="card-desc">App iOS con reconocimiento de objetos en tiempo real e inteligencia artificial integrada. Ganadora de App of the Year.</div>
+        <div class="card-footer">
+          <span class="card-year">2024</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7: Web large -->
+    <div class="project-card tall span-7" data-category="web">
+      <div class="card-image-wrap">
+        <div class="img-placeholder g7">
+          <div class="deco">
+            <div class="deco-circle"></div>
+            <div class="deco-circle"></div>
+          </div>
+          <svg style="position:absolute;opacity:0.28" width="130" height="90" viewBox="0 0 130 90">
+            <rect x="4" y="4" width="122" height="82" rx="5" fill="none" stroke="#c8f542" stroke-width="1.2"/>
+            <rect x="4" y="4" width="30" height="82" rx="5" fill="none" stroke="#c8f542" stroke-width="1" opacity="0.4"/>
+            <rect x="10" y="14" width="18" height="4" rx="2" fill="#c8f542" opacity="0.3"/>
+            <rect x="10" y="24" width="18" height="4" rx="2" fill="#c8f542" opacity="0.3"/>
+            <rect x="10" y="34" width="18" height="4" rx="2" fill="#c8f542" opacity="0.3"/>
+            <rect x="10" y="44" width="18" height="4" rx="2" fill="#c8f542" opacity="0.5"/>
+            <rect x="44" y="14" width="82" height="32" rx="3" fill="none" stroke="#c8f542" stroke-width="1" opacity="0.4"/>
+            <rect x="44" y="54" width="38" height="22" rx="3" fill="none" stroke="#c8f542" stroke-width="1" opacity="0.3"/>
+            <rect x="88" y="54" width="38" height="22" rx="3" fill="none" stroke="#c8f542" stroke-width="1" opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="tag web">Web</span>
+          <span class="tag">React</span>
+          <span class="tag">D3.js</span>
+          <span class="tag">AWS</span>
+        </div>
+        <div class="card-title">Atlas — Plataforma de datos</div>
+        <div class="card-desc">Sistema de visualización y análisis de grandes volúmenes de datos con dashboards interactivos y exportación avanzada.</div>
+        <div class="card-footer">
+          <span class="card-year">2024</span>
+          <span class="card-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer>
+    <p>© 2024 Alex.dev — Todos los derechos reservados</p>
+    <div class="social-links">
+      <a href="#">GitHub</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">Dribbble</a>
+      <a href="#">Contacto</a>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+
+    // Hover effects
+    document.querySelectorAll('.project-card, .filter-btn, a').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+        ring.style.width = '60px';
+        ring.style.height = '60px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+      });
+    });
+
+    // Filter
+    const btns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.project-card');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        cards.forEach(card => {
+          const cats = card.dataset.category || '';
+          if (filter === 'all' || cats.includes(filter)) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Intersection Observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    cards.forEach(card => { observer.observe(card); });
+  </script>
+</body>
+</html>
